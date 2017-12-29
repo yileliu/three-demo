@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Three??</title>
+    <script src="lib/three.js"></script>
+    <script type="text/javascript" src="./lib/ConvexGeometry.js"></script>
+    <style type="text/css">
+        div#canvas-frame {
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            height: 600px;
+            background-color: #EEEEEE;
+        }
+    </style>
+    <script>
+        var renderer;
+        function initThree() {
+            width = document.getElementById('canvas-frame').clientWidth;
+            height = document.getElementById('canvas-frame').clientHeight;
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.setSize(width, height);
+            document.getElementById('canvas-frame').appendChild(renderer.domElement);
+            renderer.setClearColor(0xFFFFFF, 1.0);
+        }
+
+        var camera;
+        function initCamera() {
+            camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+            camera.position.x = 5;
+            camera.position.y = 20;
+            camera.position.z = 20;
+            // camera.up.x = 0;
+            // camera.up.y = 0;
+            // camera.up.z = 1;
+            camera.lookAt(scene.position);
+        }
+
+        var scene;
+        function initScene() {
+            scene = new THREE.Scene();
+            var axes = new THREE.AxisHelper(20);
+            scene.add(axes)
+        }
+
+        var light;
+        function initLight() {
+            light = new THREE.DirectionalLight(0xFF0000, 1.0, 0);
+            light.position.set(100, 100, 200);
+            scene.add(light);
+        }
+
+        var cube;
+        function initObject() {
+            const collection = [
+                {
+                    "points": [
+                        {
+                            "id": "p1",
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        {
+                            "id": "p2",
+                            "x": 10,
+                            "y": 0,
+                            "z": 0
+                        },
+                        {
+                            "id": "p3",
+                            "x": 10,
+                            "y": 10,
+                            "z": 0
+                        },
+                        {
+                            "id": "p4",
+                            "x": 0,
+                            "y": 10,
+                            "z": 0
+                        },
+                        {
+                            "id": "p5",
+                            "x": 0,
+                            "y": 0,
+                            "z": 10
+                        },
+                        {
+                            "id": "p6",
+                            "x": 10,
+                            "y": 0,
+                            "z": 10
+                        },
+                        {
+                            "id": "p7",
+                            "x": 10,
+                            "y": 10,
+                            "z": 10
+                        },
+                        {
+                            "id": "p8",
+                            "x": 0,
+                            "y": 10,
+                            "z": 10
+                        }
+                    ],
+                    "facets": [
+                        {
+                            "elements": [
+                                1,
+                                2,
+                                3
+                            ]
+                        },
+                        {
+                            "elements": [
+                                1,
+                                3,
+                                4
+                            ]
+                        },
+                        {
+                            "elements": [
+                                5,
+                                7,
+                                6
+                            ]
+                        },
+                        {
+                            "elements": [
+                                5,
+                                8,
+                                7
+                            ]
+                        },
+                        {
+                            "elements": [
+                                4,
+                                7,
+                                8
+                            ]
+                        },
+                        {
+                            "elements": [
+                                4,
+                                3,
+                                7
+                            ]
+                        },
+                        {
+                            "elements": [
+                                2,
+                                5,
+                                6
+                            ]
+                        },
+                        {
+                            "elements": [
+                                2,
+                                1,
+                                5
+                            ]
+                        },
+                        {
+                            "elements": [
+                                2,
+                                6,
+                                7
+                            ]
+                        },
+                        {
+                            "elements": [
+                                2,
+                                7,
+                                3
+                            ]
+                        },
+                        {
+                            "elements": [
+                                1,
+                                8,
+                                5
+                            ]
+                        },
+                        {
+                            "elements": [
+                                1,
+                                4,
+                                8
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "points": [
+                        {
+                            "id": "p1",
+                            "x": 0,
+                            "y": 0,
+                            "z": 10
+                        },
+                        {
+                            "id": "p2",
+                            "x": 2,
+                            "y": 0,
+                            "z": 10
+                        },
+                        {
+                            "id": "p3",
+                            "x": 0,
+                            "y": 2,
+                            "z": 10
+                        },
+                        {
+                            "id": "p4",
+                            "x": 0,
+                            "y": 0,
+                            "z": 12
+                        }
+                    ],
+                    "facets": [
+                        {
+                            "elements": [
+                                4,
+                                1,
+                                2
+                            ]
+                        },
+                        {
+                            "elements": [
+                                2,
+                                1,
+                                3
+                            ]
+                        },
+                        {
+                            "elements": [
+                                3,
+                                1,
+                                4
+                            ]
+                        },
+                        {
+                            "elements": [
+                                4,
+                                2,
+                                3
+                            ]
+                        }
+                    ]
+                }
+            ]
+
+            const geometry = new THREE.BufferGeometry();
+            const allPoints = [], allFacets = [], allColors = [];
+
+            collection.forEach((c) => {
+                // points
+                let colors = new Float32Array(c.points.length * 4);
+                var points = new Float32Array(c.points.length * 3);
+                for (let j = 0; j < c.points.length; j++) {
+                    points[j * 3] = c.points[j].x;
+                    points[j * 3 + 1] = c.points[j].y;
+                    points[j * 3 + 2] = c.points[j].x;
+
+                    colors[j * 3] = Math.random();
+                    colors[j * 3 + 1] = Math.random();
+                    colors[j * 3 + 2] = Math.random();
+                    colors[j * 3 + 3] = Math.random();
+                };
+                allPoints.push(...points);
+                allColors.push(...colors);
+                // facets
+                var facets = new Uint16Array(c.facets.length * 3);
+
+                for (let j = 0; j < c.facets.length; j++) {
+                    var elem = c.facets[j].elements;
+                    facets[j * 3] = c.facets[j].elements[0] - 1;
+                    facets[j * 3 + 1] = c.facets[j].elements[1] - 1;
+                    facets[j * 3 + 2] = c.facets[j].elements[2] - 1;
+                };
+                allFacets.push(...facets);
+
+            });
+            geometry.addAttribute('position', new THREE.BufferAttribute(Float32Array.from(allPoints), 3));
+            const colorAttribute = new THREE.BufferAttribute(Float32Array.from(allColors), 4);
+            geometry.addAttribute('color', colorAttribute);
+            geometry.addAttribute('index', new THREE.BufferAttribute(Uint16Array.from(allFacets), 3));
+            geometry.meshCount = 1;
+            geometry.computeBoundingBox();
+            geometry.computeOffsets();
+            geometry.computeVertexNormals();
+
+            // var points = [
+            //         new THREE.Vector3(2, 2, 2),
+            //         new THREE.Vector3(2, 2, -2),
+            //         new THREE.Vector3(-2, 2, -2),
+            //         new THREE.Vector3(-2, 2, 2),
+            //         new THREE.Vector3(2, -2, 2),
+            //         new THREE.Vector3(2, -2, -2),
+            //         new THREE.Vector3(-2, -2, -2),
+            //         new THREE.Vector3(-2, -2, 2)
+            //     ];
+
+            var material = new THREE.MeshPhongMaterial({ color: 0xff0000, wireframe: true });
+            var mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+        }
+        function render() {
+            renderer.clear();
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        }
+        function threeStart() {
+            initThree();
+            initScene();
+            initCamera();
+            initLight();
+            initObject();
+            render();
+        }
+
+    </script>
+</head>
+
+<body onload="threeStart();">
+    <div id="canvas-frame"></div>
+</body>
+
+</html>
