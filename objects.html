@@ -78,7 +78,7 @@
             }
         }
         function render() {
-            renderer.clear();
+            camera.position.z =camera.position.z +1;
             renderer.render(scene, camera);
             requestAnimationFrame(render);
         }
