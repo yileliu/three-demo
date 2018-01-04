@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Plane Geometry</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.js"></script>
+    <script type="text/javascript" src="./lib/jquery-1.9.0.js"></script>
+    <script type="text/javascript" src="./lib/stats.js"></script>
+    <script type="text/javascript" src="./lib/dat.gui.js"></script>
+    <script type="text/javascript" src="lib/tween.min.js"></script>
+    <style>
+        body {
+            /* set margin to 0 and overflow to hidden, to
+             use the complete page */
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Div which will hold the Output -->
+    <div id="WebGL-output">
+    </div>
+
+    <!-- Javascript code that runs our Three.js examples -->
+    <script type="text/javascript">
+        var yLayers = 4, xLayers = 5,
+            xCellWidth = 15, yCellWidth = 20,
+            borderWidth = 1,
+            curtainWith = 0.2;
+
+        var baseGeo = {
+            "points": [],
+            "facets": [
+                {
+                    "elements": [
+                        1,
+                        3,
+                        2
+                    ]
+                },
+                {
+                    "elements": [
+                        1,
+                        4,
+                        3
+                    ]
+                },
+                {
+                    "elements": [
+                        5,
+                        6,
+                        7
+                    ]
+                },
+                {
+                    "elements": [
+                        5,
+                        7,
+                        8
+                    ]
+                },
+                {
+                    "elements": [
+                        4,
+                        8,
+                        7
+                    ]
+                },
+                {
+                    "elements": [
+                        4,
+                        7,
+                        3
+                    ]
+                },
+                {
+                    "elements": [
+                        2,
+                        6,
+                        5
+                    ]
+                },
+                {
+                    "elements": [
+                        2,
+                        5,
+                        1
+                    ]
+                },
+                {
+                    "elements": [
+                        2,
+                        7,
+                        6
+                    ]
+                },
+                {
+                    "elements": [
+                        2,
+                        3,
+                        7
+                    ]
+                },
+                {
+                    "elements": [
+                        1,
+                        5,
+                        8
+                    ]
+                },
+                {
+                    "elements": [
+                        1,
+                        8,
+                        4
+                    ]
+                }
+            ]
+        }
+
+        var allGeo = [];
+        for (var i = 0; i <= xLayers; i++) {
+            var pointsVerticle = [
+                {
+                    "id": "p1",
+                    "x": xCellWidth * i,
+                    "y": 0,
+                    "z": 0
+                },
+                {
+                    "id": "p2",
+                    "x": xCellWidth * i + borderWidth,
+                    "y": 0,
+                    "z": 0
+                },
+                {
+                    "id": "p3",
+                    "x": xCellWidth * i + borderWidth,
+                    "y": yCellWidth * yLayers + borderWidth,
+                    "z": 0
+                },
+                {
+                    "id": "p4",
+                    "x": xCellWidth * i,
+                    "y": yCellWidth * yLayers + borderWidth,
+                    "z": 0
+                },
+                {
+                    "id": "p5",
+                    "x": xCellWidth * i,
+                    "y": 0,
+                    "z": borderWidth
+                },
+                {
+                    "id": "p6",
+                    "x": xCellWidth * i + borderWidth,
+                    "y": 0,
+                    "z": borderWidth
+                },
+                {
+                    "id": "p7",
+                    "x": xCellWidth * i + borderWidth,
+                    "y": yCellWidth * yLayers + borderWidth,
+                    "z": borderWidth
+                },
+                {
+                    "id": "p8",
+                    "x": xCellWidth * i,
+                    "y": yCellWidth * yLayers + borderWidth,
+                    "z": borderWidth
+                }]
+
+            baseGeo.points = pointsVerticle;
+
+            allGeo.push(Object.assign({}, baseGeo));
+        }
+
+        for (var i = 0; i <= yLayers; i++) {
+            var pointsHorizon = [
+                {
+                    "id": "p1",
+                    "x": 0,
+                    "y": i * yCellWidth,
+                    "z": 0
+                },
+                {
+                    "id": "p2",
+                    "x": xCellWidth * xLayers,
+                    "y": i * yCellWidth,
+                    "z": 0
+                },
+                {
+                    "id": "p3",
+                    "x": xCellWidth * xLayers,
+                    "y": i * yCellWidth + borderWidth,
+                    "z": 0
+                },
+                {
+                    "id": "p4",
+                    "x": 0,
+                    "y": i * yCellWidth + borderWidth,
+                    "z": 0
+                },
+                {
+                    "id": "p5",
+                    "x": 0,
+                    "y": i * yCellWidth,
+                    "z": borderWidth
+                },
+                {
+                    "id": "p6",
+                    "x": xCellWidth * xLayers,
+                    "y": i * yCellWidth,
+                    "z": borderWidth
+                },
+                {
+                    "id": "p7",
+                    "x": xCellWidth * xLayers,
+                    "y": i * yCellWidth + borderWidth,
+                    "z": borderWidth
+                },
+                {
+                    "id": "p8",
+                    "x": 0,
+                    "y": i * yCellWidth + borderWidth,
+                    "z": borderWidth
+                }
+            ]
+
+            baseGeo.points = pointsHorizon;
+            allGeo.push(Object.assign({}, baseGeo));
+        }
+        for (var j = 0; j < yLayers; j++) {
+            for (var i = 0; i < xLayers; i++) {
+                var pointsCell = [
+                    {
+                        "id": "p1",
+                        "x": borderWidth + xCellWidth * i,
+                        "y": borderWidth + yCellWidth * j,
+                        "z": 0.45
+                    },
+                    {
+                        "id": "p2",
+                        "x": xCellWidth * (i + 1),
+                        "y": borderWidth + yCellWidth * j,
+                        "z": 0.45
+                    },
+                    {
+                        "id": "p3",
+                        "x": xCellWidth * (i + 1),
+                        "y": yCellWidth * (j + 1),
+                        "z": 0.45
+                    },
+                    {
+                        "id": "p4",
+                        "x": borderWidth + xCellWidth * i,
+                        "y": yCellWidth * (j + 1),
+                        "z": 0.45
+                    },
+                    {
+                        "id": "p5",
+                        "x": xCellWidth * (i + 1),
+                        "y": borderWidth + yCellWidth * j,
+                        "z": 0.55
+                    },
+                    {
+                        "id": "p6",
+                        "x": borderWidth + xCellWidth * i,
+                        "y": borderWidth + yCellWidth * j,
+                        "z": 0.55
+                    },
+                    {
+                        "id": "p7",
+                        "x": xCellWidth * (i + 1),
+                        "y": yCellWidth * (j + 1),
+                        "z": 0.55
+                    },
+                    {
+                        "id": "p8",
+                        "x": borderWidth + xCellWidth * i,
+                        "y": yCellWidth * (j + 1),
+                        "z": 0.55
+                    }];
+
+                baseGeo.points = pointsCell;
+
+                if (i == 2 && j == 2) {
+                    continue;
+                }
+
+                allGeo.push(Object.assign({}, baseGeo));
+            }
+        }
+        console.log(JSON.stringify(allGeo));
+    </script>
+</body>
+
+</html>
